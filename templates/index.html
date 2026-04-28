@@ -52,12 +52,54 @@
         </article>
 
         <article class="card">
+          <h2>Ideias de Projeto</h2>
+          <div class="form">
+            <select id="ideaArea">
+              <option>Programação</option>
+              <option>Hardware</option>
+              <option>Mobile</option>
+              <option>iOS</option>
+              <option>Informática</option>
+            </select>
+            <input id="ideaType" placeholder="Tipo (app, API, firmware, automação...)" />
+            <input id="ideaTitle" placeholder="Nome da ideia" />
+            <textarea id="ideaObjective" placeholder="Objetivo e escopo"></textarea>
+            <input id="ideaStack" placeholder="Stack/Ferramentas sugeridas" />
+            <button onclick="saveIdea()">Salvar ideia</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Arquivos de Projeto</h2>
+          <div class="form">
+            <select id="fileArea">
+              <option>Programação</option>
+              <option>Hardware</option>
+              <option>Mobile</option>
+              <option>iOS</option>
+              <option>Informática</option>
+            </select>
+            <input id="fileType" placeholder="Tipo do projeto" />
+            <input id="fileProjectName" placeholder="Nome do projeto" />
+            <input id="fileIdeaId" placeholder="ID da ideia (opcional)" />
+            <input id="projectFile" type="file" />
+            <button onclick="uploadProjectFile()">Guardar arquivo</button>
+            <pre id="fileOutput"></pre>
+          </div>
+        </article>
+
+        <article class="card">
           <h2>Comandos Rápidos</h2>
           <div class="form">
             <input id="cmdInput" placeholder="python --version | adb devices | systeminfo" />
             <button onclick="runCommand()">Executar comando</button>
             <pre id="cmdOutput"></pre>
           </div>
+        </article>
+
+        <article class="card">
+          <h2>Ferramentas por Área</h2>
+          <div id="toolsPanel" class="chips"></div>
         </article>
 
         <article class="card">
@@ -88,6 +130,26 @@
               <tr><th>ID</th><th>Área</th><th>Tópico</th><th>Data</th></tr>
             </thead>
             <tbody id="learnRows"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h2>Histórico de Ideias</h2>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Área</th><th>Tipo</th><th>Título</th><th>Data</th></tr>
+            </thead>
+            <tbody id="ideaRows"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h2>Arquivos Guardados</h2>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Área</th><th>Tipo</th><th>Projeto</th><th>Arquivo</th><th>Caminho</th></tr>
+            </thead>
+            <tbody id="fileRows"></tbody>
           </table>
         </article>
       </section>

@@ -1,9 +1,12 @@
 async function api(url, method = "GET", body = null) {
-  const res = await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: body ? JSON.stringify(body) : null
-  });
+  const opts = { method, headers: {} };
+  if (body instanceof FormData) {
+    opts.body = body;
+  } else if (body) {
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(url, opts);
   return res.json();
 }
 
@@ -17,10 +20,30 @@ function fillRows(id, rows, fields) {
   });
 }
 
+function renderTools(mapping) {
+  const panel = document.getElementById("toolsPanel");
+  panel.innerHTML = "";
+  Object.keys(mapping).forEach((area) => {
+    const block = document.createElement("div");
+    block.className = "tool-block";
+    block.innerHTML = `<h3>${area}</h3>${mapping[area]
+      .map((tool) => `<span class="chip">${tool}</span>`)
+      .join("")}`;
+    panel.appendChild(block);
+  });
+}
+
 async function loadDashboard() {
   const data = await api("/api/dashboard");
   fillRows("taskRows", data.tasks, ["id", "area", "title", "status", "created_at"]);
   fillRows("learnRows", data.learnings, ["id", "area", "topic", "created_at"]);
+  fillRows("ideaRows", data.ideas, ["id", "area", "project_type", "title", "created_at"]);
+  fillRows("fileRows", data.files, ["id", "area", "project_type", "project_name", "original_filename", "stored_path"]);
+}
+
+async function loadTools() {
+  const data = await api("/api/tools");
+  renderTools(data);
 }
 
 async function saveTask() {
@@ -50,6 +73,42 @@ async function saveLearning() {
   await loadDashboard();
 }
 
+async function saveIdea() {
+  const payload = {
+    area: document.getElementById("ideaArea").value,
+    project_type: document.getElementById("ideaType").value.trim(),
+    title: document.getElementById("ideaTitle").value.trim(),
+    objective: document.getElementById("ideaObjective").value.trim(),
+    stack_hint: document.getElementById("ideaStack").value.trim()
+  };
+  if (!payload.project_type || !payload.title || !payload.objective) return;
+  await api("/api/project-ideas", "POST", payload);
+  document.getElementById("ideaType").value = "";
+  document.getElementById("ideaTitle").value = "";
+  document.getElementById("ideaObjective").value = "";
+  document.getElementById("ideaStack").value = "";
+  await loadDashboard();
+}
+
+async function uploadProjectFile() {
+  const file = document.getElementById("projectFile").files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append("area", document.getElementById("fileArea").value);
+  fd.append("project_type", document.getElementById("fileType").value.trim());
+  fd.append("project_name", document.getElementById("fileProjectName").value.trim());
+  fd.append("idea_id", document.getElementById("fileIdeaId").value.trim());
+  fd.append("file", file);
+  const data = await api("/api/project-files", "POST", fd);
+  document.getElementById("fileOutput").textContent = data.ok
+    ? `Arquivo salvo em: ${data.stored_path}`
+    : `Erro: ${data.error || "falha no upload"}`;
+  if (data.ok) {
+    document.getElementById("projectFile").value = "";
+    await loadDashboard();
+  }
+}
+
 async function runCommand() {
   const command = document.getElementById("cmdInput").value.trim();
   if (!command) return;
@@ -67,3 +126,4 @@ async function syncGithub() {
 }
 
 loadDashboard();
+loadTools();

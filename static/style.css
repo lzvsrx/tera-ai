@@ -58,6 +58,7 @@ body {
 }
 
 .card h2 { margin-top: 0; color: #b7dbff; }
+.card h3 { margin: 10px 0 8px; color: #8fc6ff; font-size: 14px; }
 
 .form { display: grid; gap: 10px; }
 
@@ -101,4 +102,27 @@ pre {
   border-radius: 8px;
   padding: 10px;
   min-height: 70px;
+}
+
+.chips {
+  display: grid;
+  gap: 12px;
+}
+
+.tool-block {
+  padding: 10px;
+  border: 1px solid #295280;
+  border-radius: 10px;
+  background: rgba(8, 26, 48, 0.55);
+}
+
+.chip {
+  display: inline-block;
+  margin: 3px 6px 3px 0;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #3d78b3;
+  background: #0a2341;
+  color: #bdddff;
+  font-size: 12px;
 }

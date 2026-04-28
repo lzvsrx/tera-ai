@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request, send_file
+from werkzeug.utils import secure_filename
 
 if getattr(sys, "frozen", False):
     APP_ROOT = Path(sys._MEIPASS)  # type: ignore[attr-defined]
@@ -16,6 +17,7 @@ else:
 
 DATA_ROOT = Path.home() / "AppData" / "Local" / "TeraAI"
 DB_PATH = DATA_ROOT / "data" / "tera.db"
+PROJECTS_ROOT = DATA_ROOT / "projects"
 HOST = "127.0.0.1"
 PORT = 5050
 
@@ -63,6 +65,34 @@ def setup_db():
         )
         """
     )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS project_ideas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            area TEXT NOT NULL,
+            project_type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            objective TEXT NOT NULL,
+            stack_hint TEXT,
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS project_files (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            idea_id INTEGER,
+            area TEXT NOT NULL,
+            project_type TEXT NOT NULL,
+            project_name TEXT NOT NULL,
+            original_filename TEXT NOT NULL,
+            stored_path TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(idea_id) REFERENCES project_ideas(id)
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
@@ -80,8 +110,27 @@ def dashboard():
     conn = get_db()
     tasks = [dict(x) for x in conn.execute("SELECT * FROM tasks ORDER BY id DESC").fetchall()]
     learnings = [dict(x) for x in conn.execute("SELECT * FROM learnings ORDER BY id DESC").fetchall()]
+    ideas = [dict(x) for x in conn.execute("SELECT * FROM project_ideas ORDER BY id DESC").fetchall()]
+    files = [
+        dict(x)
+        for x in conn.execute(
+            "SELECT * FROM project_files ORDER BY id DESC LIMIT 200"
+        ).fetchall()
+    ]
     conn.close()
-    return jsonify({"tasks": tasks, "learnings": learnings})
+    return jsonify({"tasks": tasks, "learnings": learnings, "ideas": ideas, "files": files})
+
+
+@app.get("/api/tools")
+def tools():
+    mapping = {
+        "Programação": ["Python", "Git", "Docker", "VS Code", "Postman"],
+        "Hardware": ["CPU-Z", "HWiNFO", "Osciloscópio", "Multímetro", "KiCad"],
+        "Mobile": ["Android Studio", "ADB", "Firebase", "Fastlane", "Expo"],
+        "iOS": ["Xcode", "CocoaPods", "Simulator", "Instruments", "TestFlight"],
+        "Informática": ["PowerShell", "Wireshark", "VirtualBox", "Rufus", "AnyDesk"],
+    }
+    return jsonify(mapping)
 
 
 @app.post("/api/tasks")
@@ -119,6 +168,68 @@ def create_learning():
     conn.commit()
     conn.close()
     return jsonify({"ok": True})
+
+
+@app.post("/api/project-ideas")
+def create_project_idea():
+    payload = request.get_json(force=True)
+    conn = get_db()
+    conn.execute(
+        """
+        INSERT INTO project_ideas(area,project_type,title,objective,stack_hint,created_at)
+        VALUES(?,?,?,?,?,?)
+        """,
+        (
+            payload["area"],
+            payload["project_type"],
+            payload["title"],
+            payload["objective"],
+            payload.get("stack_hint", ""),
+            datetime.now().isoformat(timespec="seconds"),
+        ),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
+
+@app.post("/api/project-files")
+def create_project_file():
+    area = request.form.get("area", "").strip()
+    project_type = request.form.get("project_type", "").strip()
+    project_name = request.form.get("project_name", "").strip()
+    idea_id = request.form.get("idea_id", "").strip() or None
+    up = request.files.get("file")
+
+    if not area or not project_type or not project_name or up is None:
+        return jsonify({"ok": False, "error": "Dados incompletos."}), 400
+
+    cleaned_name = secure_filename(project_name).strip() or "projeto"
+    clean_file = secure_filename(up.filename or "arquivo.bin")
+    folder = PROJECTS_ROOT / area / project_type / cleaned_name
+    folder.mkdir(parents=True, exist_ok=True)
+    stored_path = folder / clean_file
+    up.save(stored_path)
+
+    conn = get_db()
+    conn.execute(
+        """
+        INSERT INTO project_files(idea_id,area,project_type,project_name,original_filename,stored_path,created_at)
+        VALUES(?,?,?,?,?,?,?)
+        """,
+        (
+            int(idea_id) if idea_id else None,
+            area,
+            project_type,
+            project_name,
+            up.filename or clean_file,
+            str(stored_path),
+            datetime.now().isoformat(timespec="seconds"),
+        ),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "stored_path": str(stored_path)})
 
 
 @app.post("/api/commands")
@@ -177,6 +288,7 @@ def open_browser():
 if __name__ == "__main__":
     os.makedirs(DATA_ROOT / "data", exist_ok=True)
     os.makedirs(DATA_ROOT / "exports", exist_ok=True)
+    os.makedirs(PROJECTS_ROOT, exist_ok=True)
     setup_db()
     threading.Timer(1.0, open_browser).start()
     app.run(host=HOST, port=PORT, debug=False)
