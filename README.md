@@ -1,54 +1,47 @@
 # TERA AI
 
-Assistente desktop para Windows, criado em Python com interface estilizada em CSS (Qt Stylesheet), inspirado no conceito de assistente técnico para profissionais de:
+Aplicativo para Windows em Python com interface em HTML/CSS (design moderno e tecnológico), focado em programação, hardware, mobile, iOS e informática.
 
-- Programação
-- Hardware
-- Mobile
-- iOS
-- Informática
+## Recursos
 
-## Funcionalidades atuais
+- Tarefas por área técnica
+- Memória de aprendizados (anotações salvas)
+- Execução de comandos com log no banco
+- Banco SQLite persistente
+- Exportação do banco
+- Sincronização para GitHub via botão/API
 
-- Cadastro e gestão de tarefas técnicas por área
-- Registro de aprendizados (memória de conhecimento)
-- Execução de comandos úteis (dev/hardware/mobile) com log salvo
-- Persistência completa em banco SQLite
-- Exportação do banco de dados
-- Sincronização GitHub via menu interno
+## Estrutura
 
-## Tecnologias
+- `main.py`: backend Python (Flask + SQLite)
+- `templates/index.html`: interface
+- `static/style.css`: tema visual tecnológico
+- `static/app.js`: interações do frontend
 
-- Python 3
-- PySide6 (GUI)
-- Qt Stylesheet (CSS)
-- SQLite
-- PyInstaller (geração de executável)
+## Fonte Angels
 
-## Fonte Angels (Dafont)
+Para usar a fonte solicitada:
 
-O projeto está preparado para usar a fonte **Angels**.
+1. Baixe a fonte **Angels** no Dafont.
+2. Coloque o arquivo em: `static/fonts/Angels.ttf`
 
-1. Baixe a fonte no Dafont
-2. Coloque `Angels.ttf` em `assets/fonts/Angels.ttf`
+Observação: o repositório traz `static/fonts/README.txt` indicando o local da fonte.
 
-Sem o arquivo, o app usa fallback de fonte automaticamente.
-
-## Como rodar
+## Rodar localmente
 
 ```bash
 python -m pip install -r requirements.txt
 python main.py
 ```
 
-## Gerar executável (.exe)
+O app abre no navegador local automaticamente.
 
-No Windows:
+## Gerar executável (.exe)
 
 ```bat
 build_exe.bat
 ```
 
-Ao final, o executável fica em:
+Saída:
 
 `dist\Tera\Tera.exe`

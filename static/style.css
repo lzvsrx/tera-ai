@@ -1,0 +1,104 @@
+@font-face {
+  font-family: "Angels";
+  src: url("/static/fonts/Angels.ttf") format("truetype");
+}
+
+:root {
+  --bg0: #060a12;
+  --bg1: #0a1423;
+  --bg2: #11213a;
+  --line: #2a4f83;
+  --txt: #d7e8ff;
+  --accent: #43a4ff;
+  --accent2: #00d4ff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 0% 0%, #1f3e68 0%, transparent 35%),
+    radial-gradient(circle at 100% 100%, #0b3157 0%, transparent 40%),
+    linear-gradient(160deg, var(--bg0), var(--bg1), var(--bg2));
+  color: var(--txt);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.app {
+  width: min(1200px, 94vw);
+  margin: 20px auto 40px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(44px, 7vw, 72px);
+  font-family: "Angels", "Segoe UI", sans-serif;
+  letter-spacing: 5px;
+  color: #9fd8ff;
+  text-shadow: 0 0 20px rgba(67, 164, 255, 0.35);
+}
+
+.hero p { color: #9bb8da; margin-top: 6px; }
+
+.grid, .tables {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.tables { margin-top: 16px; grid-template-columns: 1fr; }
+
+.card {
+  background: rgba(8, 18, 34, 0.8);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.card h2 { margin-top: 0; color: #b7dbff; }
+
+.form { display: grid; gap: 10px; }
+
+input, select, textarea, button {
+  border-radius: 8px;
+  border: 1px solid #35609a;
+  padding: 10px;
+  background: #08111f;
+  color: var(--txt);
+}
+
+textarea { min-height: 84px; resize: vertical; }
+
+button {
+  cursor: pointer;
+  background: linear-gradient(120deg, #0c5b9e, #147fcb);
+  border-color: #4ab6ff;
+  font-weight: 600;
+}
+
+button:hover { filter: brightness(1.08); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  border-bottom: 1px solid #24466f;
+  padding: 8px;
+  text-align: left;
+}
+
+th { color: #9ec8f3; }
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  background: #060d18;
+  border: 1px solid #224268;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 70px;
+}

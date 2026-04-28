@@ -10,8 +10,9 @@ if exist dist rmdir /s /q dist
 if exist Tera.spec del /f /q Tera.spec
 
 echo [3/3] Gerando executavel...
-pyinstaller --noconfirm --windowed --name Tera ^
---add-data "assets;assets" ^
+python -m PyInstaller --noconfirm --windowed --name Tera ^
+--add-data "templates;templates" ^
+--add-data "static;static" ^
 main.py
 if errorlevel 1 goto :error
 

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TERA AI</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <h1>TERA</h1>
+        <p>Assistente técnico para programação, hardware, mobile, iOS e informática</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Nova Tarefa</h2>
+          <div class="form">
+            <select id="taskArea">
+              <option>Programação</option>
+              <option>Hardware</option>
+              <option>Mobile</option>
+              <option>iOS</option>
+              <option>Informática</option>
+            </select>
+            <input id="taskTitle" placeholder="Título da tarefa" />
+            <textarea id="taskDesc" placeholder="Descrição"></textarea>
+            <select id="taskStatus">
+              <option>Pendente</option>
+              <option>Em Progresso</option>
+              <option>Concluída</option>
+            </select>
+            <button onclick="saveTask()">Salvar tarefa</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Novo Aprendizado</h2>
+          <div class="form">
+            <select id="learnArea">
+              <option>Programação</option>
+              <option>Hardware</option>
+              <option>Mobile</option>
+              <option>iOS</option>
+              <option>Informática</option>
+            </select>
+            <input id="learnTopic" placeholder="Tópico" />
+            <textarea id="learnNote" placeholder="Anotação técnica"></textarea>
+            <button onclick="saveLearning()">Salvar aprendizado</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Comandos Rápidos</h2>
+          <div class="form">
+            <input id="cmdInput" placeholder="python --version | adb devices | systeminfo" />
+            <button onclick="runCommand()">Executar comando</button>
+            <pre id="cmdOutput"></pre>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Banco e GitHub</h2>
+          <div class="form">
+            <button onclick="window.location='/api/export-db'">Exportar SQLite</button>
+            <button onclick="syncGithub()">Sincronizar GitHub</button>
+            <pre id="gitOutput"></pre>
+          </div>
+        </article>
+      </section>
+
+      <section class="tables">
+        <article class="card">
+          <h2>Tarefas</h2>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Área</th><th>Título</th><th>Status</th><th>Data</th></tr>
+            </thead>
+            <tbody id="taskRows"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h2>Aprendizados</h2>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Área</th><th>Tópico</th><th>Data</th></tr>
+            </thead>
+            <tbody id="learnRows"></tbody>
+          </table>
+        </article>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
