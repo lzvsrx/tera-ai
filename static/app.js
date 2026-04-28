@@ -39,6 +39,7 @@ async function loadDashboard() {
   fillRows("learnRows", data.learnings, ["id", "area", "topic", "created_at"]);
   fillRows("ideaRows", data.ideas, ["id", "area", "project_type", "title", "created_at"]);
   fillRows("fileRows", data.files, ["id", "area", "project_type", "project_name", "original_filename", "stored_path"]);
+  fillRows("chatRows", data.chats, ["id", "role", "message", "created_at"]);
 }
 
 async function loadTools() {
@@ -123,6 +124,63 @@ async function syncGithub() {
   if (data.stdout) out.push(data.stdout);
   if (data.stderr) out.push(data.stderr);
   document.getElementById("gitOutput").textContent = out.join("\n");
+}
+
+async function sendChat() {
+  const input = document.getElementById("chatInput");
+  const message = input.value.trim();
+  if (!message) return;
+  const data = await api("/api/chat", "POST", { message });
+  document.getElementById("chatOutput").textContent = data.ok ? data.reply : (data.error || "Erro no chat");
+  input.value = "";
+  await loadDashboard();
+}
+
+function handleVoiceCommand(text) {
+  const cmd = text.toLowerCase();
+  if (cmd.includes("salvar tarefa")) return saveTask();
+  if (cmd.includes("salvar aprendizado")) return saveLearning();
+  if (cmd.includes("salvar ideia")) return saveIdea();
+  if (cmd.includes("executar comando")) return runCommand();
+  if (cmd.includes("sincronizar github")) return syncGithub();
+  const chatInput = document.getElementById("chatInput");
+  chatInput.value = text;
+  return sendChat();
+}
+
+let recognition = null;
+let voiceOn = false;
+
+function toggleVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById("voiceBtn");
+  if (!SR) {
+    document.getElementById("chatOutput").textContent = "Reconhecimento de voz não suportado neste navegador.";
+    return;
+  }
+  if (!recognition) {
+    recognition = new SR();
+    recognition.lang = "pt-BR";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const text = event.results[event.results.length - 1][0].transcript.trim();
+      document.getElementById("voiceText").value = text;
+      handleVoiceCommand(text);
+    };
+    recognition.onerror = () => {
+      document.getElementById("chatOutput").textContent = "Falha no reconhecimento de voz.";
+    };
+  }
+  if (!voiceOn) {
+    recognition.start();
+    voiceOn = true;
+    btn.textContent = "Parar reconhecimento de voz";
+  } else {
+    recognition.stop();
+    voiceOn = false;
+    btn.textContent = "Iniciar reconhecimento de voz";
+  }
 }
 
 loadDashboard();

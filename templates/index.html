@@ -98,6 +98,17 @@
         </article>
 
         <article class="card">
+          <h2>Voz e Chat</h2>
+          <div class="form">
+            <button id="voiceBtn" onclick="toggleVoice()">Iniciar reconhecimento de voz</button>
+            <input id="voiceText" placeholder="Texto reconhecido por voz" />
+            <input id="chatInput" placeholder="Digite ou use voz para conversar com TERA" />
+            <button onclick="sendChat()">Enviar chat</button>
+            <pre id="chatOutput"></pre>
+          </div>
+        </article>
+
+        <article class="card">
           <h2>Ferramentas por Área</h2>
           <div id="toolsPanel" class="chips"></div>
         </article>
@@ -150,6 +161,16 @@
               <tr><th>ID</th><th>Área</th><th>Tipo</th><th>Projeto</th><th>Arquivo</th><th>Caminho</th></tr>
             </thead>
             <tbody id="fileRows"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h2>Histórico de Chat</h2>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Perfil</th><th>Mensagem</th><th>Data</th></tr>
+            </thead>
+            <tbody id="chatRows"></tbody>
           </table>
         </article>
       </section>

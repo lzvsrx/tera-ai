@@ -93,6 +93,16 @@ def setup_db():
         )
         """
     )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS chat_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            role TEXT NOT NULL,
+            message TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
@@ -117,8 +127,48 @@ def dashboard():
             "SELECT * FROM project_files ORDER BY id DESC LIMIT 200"
         ).fetchall()
     ]
+    chats = [dict(x) for x in conn.execute("SELECT * FROM chat_logs ORDER BY id DESC LIMIT 200").fetchall()]
     conn.close()
-    return jsonify({"tasks": tasks, "learnings": learnings, "ideas": ideas, "files": files})
+    return jsonify({"tasks": tasks, "learnings": learnings, "ideas": ideas, "files": files, "chats": chats})
+
+
+def build_chat_reply(message: str):
+    text = message.lower().strip()
+    if "python" in text:
+        return "Dica Python: use ambientes virtuais e padronize lint/test com ruff + pytest."
+    if "hardware" in text:
+        return "Checklist hardware: energia, temperatura, RAM, disco e logs de BIOS/UEFI."
+    if "mobile" in text or "android" in text:
+        return "Mobile: valide build debug, permissões, logs ADB e consumo de bateria."
+    if "ios" in text:
+        return "iOS: revise certificados, provisioning profile, logs do Xcode e TestFlight."
+    if "comando" in text:
+        return "Você pode usar comandos de voz como: salvar tarefa, salvar ideia, executar comando."
+    return "Entendi. Posso te ajudar a estruturar tarefa, ideia de projeto, comando técnico ou diagnóstico."
+
+
+@app.post("/api/chat")
+def chat():
+    payload = request.get_json(force=True)
+    user_message = payload.get("message", "").strip()
+    if not user_message:
+        return jsonify({"ok": False, "error": "Mensagem vazia."}), 400
+
+    assistant_message = build_chat_reply(user_message)
+    now = datetime.now().isoformat(timespec="seconds")
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO chat_logs(role,message,created_at) VALUES(?,?,?)",
+        ("user", user_message, now),
+    )
+    conn.execute(
+        "INSERT INTO chat_logs(role,message,created_at) VALUES(?,?,?)",
+        ("assistant", assistant_message, now),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "reply": assistant_message})
 
 
 @app.get("/api/tools")
